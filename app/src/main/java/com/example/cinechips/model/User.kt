@@ -1,4 +1,7 @@
 package com.example.cinechips.model
 
-class User {
-}
+data class User(
+    var uid: String = "",
+    var email: String = "",
+    var isAdmin: Boolean = false
+)

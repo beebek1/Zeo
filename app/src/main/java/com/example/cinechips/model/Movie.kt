@@ -1,4 +1,8 @@
 package com.example.cinechips.model
 
-class Movie {
-}
+data class Movie(
+    var id: String = "",
+    var title: String = "",
+    var description: String = "",
+    var price: Int = 0
+)
