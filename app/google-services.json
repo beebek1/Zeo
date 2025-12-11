@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "724045223370",
-    "project_id": "cinechips",
-    "storage_bucket": "cinechips.firebasestorage.app"
+    "project_number": "944951770952",
+    "project_id": "final-cinechips",
+    "storage_bucket": "final-cinechips.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:724045223370:android:e40ae20bf1cc84cb922b33",
+        "mobilesdk_app_id": "1:944951770952:android:09ddd6603e607e1ab07d7d",
         "android_client_info": {
           "package_name": "com.example.cinechips"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDXwXiku9rvO_4rj-hQr_PM82YaTCS9IG4"
+          "current_key": "AIzaSyBh6LQXvrIFJt2ryER0ZiVz8hCp7aDuu5o"
         }
       ],
       "services": {

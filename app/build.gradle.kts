@@ -58,8 +58,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation (platform("com.google.firebase:firebase-bom:34.6.0"))
-    implementation("com.google.firebase:firebase-auth-ktx:22.1.0")
-    implementation("com.google.firebase:firebase-database")
+    implementation(platform("com.google.firebase:firebase-bom:32.1.0"))
+
+    implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    // Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.0-alpha03")
+    // Other Compose dependencies
+    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.compose.ui:ui:1.6.0-alpha03")
+    implementation("androidx.compose.material3:material3:1.2.0")
+
 }
