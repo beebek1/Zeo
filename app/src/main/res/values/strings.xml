@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Futsal</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_registration">RegistrationActivity</string>
+    <string name="title_activity_forget_password">ForgetPassword</string>
+    <string name="title_activity_dashboard">Dashboard</string>
+    <string name="title_activity_splash">SplashActivity</string>
+</resources>
