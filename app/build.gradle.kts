@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.futsal"
+    namespace = "com.example.zeo"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.futsal"
+        applicationId = "com.example.zeo"
         minSdk = 27
         targetSdk = 36
         versionCode = 1
@@ -60,4 +60,8 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
+    implementation("com.github.skydoves:landscapist-glide:2.2.6")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
 }

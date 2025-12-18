@@ -1,21 +1,22 @@
 {
   "project_info": {
-    "project_number": "869423421870",
-    "project_id": "goalpost-8470b",
-    "storage_bucket": "goalpost-8470b.firebasestorage.app"
+    "project_number": "724045223370",
+    "firebase_url": "https://cinechips-default-rtdb.firebaseio.com",
+    "project_id": "cinechips",
+    "storage_bucket": "cinechips.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:869423421870:android:19b19106fe65300c20103f",
+        "mobilesdk_app_id": "1:724045223370:android:e4d73ca794c42ed3922b33",
         "android_client_info": {
-          "package_name": "com.example.futsal"
+          "package_name": "com.example.zeo"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBxd4XGaC6eEAzVaJH0K5ugoPE_Fp2T2iI"
+          "current_key": "AIzaSyDXwXiku9rvO_4rj-hQr_PM82YaTCS9IG4"
         }
       ],
       "services": {

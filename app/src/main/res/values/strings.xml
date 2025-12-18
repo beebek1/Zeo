@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Futsal</string>
+    <string name="app_name">Expensoo</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_registration">RegistrationActivity</string>
     <string name="title_activity_forget_password">ForgetPassword</string>
