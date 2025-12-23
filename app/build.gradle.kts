@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -63,5 +64,14 @@ dependencies {
     implementation("com.airbnb.android:lottie-compose:6.1.0")
     implementation("com.github.skydoves:landscapist-glide:2.2.6")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
+    implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("com.cloudinary:cloudinary-android:2.1.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 }

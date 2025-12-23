@@ -3,6 +3,7 @@
     package="com.example.zeo">
 
     <application
+        android:name=".ZeoApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,7 +27,7 @@
 
         <!-- Other activities -->
         <activity
-            android:name=".view.Dashboard"
+            android:name=".view.DashboardActivity"
             android:exported="true"
             android:label="@string/title_activity_dashboard"
             android:theme="@style/Theme.Zeo" />
@@ -41,7 +42,7 @@
             android:name=".view.Registration"
             android:exported="true"
             android:label="@string/title_activity_registration"
-            android:theme="@style/Theme.Zeo" />
+            android.theme="@style/Theme.Zeo" />
 
         <activity
             android:name=".view.Login"

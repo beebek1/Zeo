@@ -68,8 +68,6 @@ import com.example.zeo.ui.theme.Green
 import com.example.zeo.ui.theme.Lightgray
 import com.example.zeo.ui.theme.Mint
 import com.example.zeo.ui.theme.bluish
-import com.example.zeo.view.Dashboard
-
 
 class Registration : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -313,7 +311,7 @@ fun RegistrationBody() {
                                                 message,
                                                 Toast.LENGTH_LONG
                                             ).show()
-                                            val intent = Intent(context, Dashboard::class.java)
+                                            val intent = Intent(context, Login::class.java)
                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                             context.startActivity(intent)
                                         } else {

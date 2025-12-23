@@ -284,7 +284,7 @@ fun LoginBody(){
                         } else {
                             userViewModel.login(email, password) { success, message ->
                                 if (success) {
-                                    val intent = Intent(context, Dashboard::class.java)
+                                    val intent = Intent(context, DashboardActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     context.startActivity(intent)
 
