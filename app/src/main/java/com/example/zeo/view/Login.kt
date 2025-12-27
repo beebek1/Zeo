@@ -3,7 +3,6 @@ package com.example.zeo.view
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color.blue
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -12,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -49,22 +51,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import com.example.zeo.R
 import com.example.zeo.repository.UserRepoImpl
 import com.example.zeo.ui.theme.Green
 import com.example.zeo.ui.theme.Lightgray
-import com.example.zeo.R
 import com.example.zeo.ui.theme.bluish
 import com.example.zeo.viewmodel.UserViewModel
 
@@ -73,6 +72,18 @@ class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val sharedPreferences = getSharedPreferences("user", Context.MODE_PRIVATE)
+        val shouldRemember = sharedPreferences.getBoolean("remember_me", false)
+
+        if (shouldRemember) {
+            val intent = Intent(this, Dashboard::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
         setContent {
             LoginBody()
         }
@@ -86,20 +97,15 @@ fun LoginBody(){
     var password by remember { mutableStateOf("") }
     var visibility by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val activity = context as Activity
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     val userViewModel = remember { UserViewModel(UserRepoImpl()) }
 
-    val coroutineScope = rememberCoroutineScope()
-
     val sharedPreferences = context.getSharedPreferences("user", Context.MODE_PRIVATE)
-
-    val localEmail: String? = sharedPreferences.getString("email","")
-    val localPassword: String? = sharedPreferences.getString("password","")
 
 
     Scaffold(
@@ -109,7 +115,8 @@ fun LoginBody(){
         }
     ) { padding->
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues = padding)
 
         ) {
@@ -249,14 +256,30 @@ fun LoginBody(){
                     shape = RoundedCornerShape(15.dp)
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Text(
-                    "Forgot Password?",
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 15.dp)
-                        .clickable {
+                        .padding(horizontal = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = rememberMe,
+                            onCheckedChange = { rememberMe = it },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = bluish
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Remember Me")
+                    }
+
+                    Text(
+                        text = "Forgot Password?",
+                        color = Color.Blue,
+                        modifier = Modifier.clickable {
                             if (email.isBlank()) {
                                 Toast.makeText(
                                     context,
@@ -268,10 +291,9 @@ fun LoginBody(){
                                 intent.putExtra("email", email)
                                 context.startActivity(intent)
                             }
-                        },
-                    style = TextStyle(textAlign = TextAlign.End),
-                    color = Color.Blue
-                )
+                        }
+                    )
+                }
 
                 Button(
                     onClick = {
@@ -284,6 +306,18 @@ fun LoginBody(){
                         } else {
                             userViewModel.login(email, password) { success, message ->
                                 if (success) {
+                                    with(sharedPreferences.edit()) {
+                                        if (rememberMe) {
+                                            putBoolean("remember_me", true)
+                                            putString("email", email)
+                                            putString("password", password)
+                                        } else {
+                                            putBoolean("remember_me", false)
+                                            remove("email")
+                                            remove("password")
+                                        }
+                                        apply()
+                                    }
                                     val intent = Intent(context, Dashboard::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     context.startActivity(intent)
