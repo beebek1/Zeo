@@ -56,6 +56,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.zeo.local.ExpenseEntity
 import com.example.zeo.viewmodel.ExpenseViewModel
+import com.example.zeo.viewmodel.UserViewModel
 
 val bluish = Color(0xFF3F94F8)
 val screenBackground = Color(0xFFF4F6F8)
@@ -72,7 +73,7 @@ class Dashboard : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(viewModel: ExpenseViewModel, onAddTransactionClicked: () -> Unit) {
+fun MainScreen(viewModel: ExpenseViewModel, userViewModel: UserViewModel, onAddTransactionClicked: () -> Unit) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) },
@@ -87,10 +88,10 @@ fun MainScreen(viewModel: ExpenseViewModel, onAddTransactionClicked: () -> Unit)
                 DashboardScreen(navController, viewModel, onAddTransactionClicked)
             }
             composable(NavigationItem.Analytics.route) {
-                AnalyticsScreen(viewModel) // Passing viewModel here
+                AnalyticsScreen(viewModel)
             }
             composable(NavigationItem.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(userViewModel)
             }
         }
     }

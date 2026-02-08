@@ -10,8 +10,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zeo.ZeoApplication
+import com.example.zeo.repository.UserRepoImpl
 import com.example.zeo.viewmodel.ExpenseViewModel
 import com.example.zeo.viewmodel.ExpenseViewModelFactory
+import com.example.zeo.viewmodel.UserViewModel
 
 class DashboardActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +23,8 @@ class DashboardActivity : ComponentActivity() {
             val expenseViewModel: ExpenseViewModel = viewModel(
                 factory = ExpenseViewModelFactory((application as ZeoApplication).expenseRepository)
             )
+            
+            val userViewModel = remember { UserViewModel(UserRepoImpl()) }
 
             var showAddTransactionScreen by remember { mutableStateOf(false) }
 
@@ -31,6 +35,7 @@ class DashboardActivity : ComponentActivity() {
             } else {
                 MainScreen(
                     viewModel = expenseViewModel,
+                    userViewModel = userViewModel,
                     onAddTransactionClicked = { showAddTransactionScreen = true })
             }
         }
