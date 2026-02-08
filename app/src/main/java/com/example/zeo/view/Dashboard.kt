@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -74,14 +75,19 @@ class Dashboard : ComponentActivity() {
 fun MainScreen(viewModel: ExpenseViewModel, onAddTransactionClicked: () -> Unit) {
     val navController = rememberNavController()
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = { BottomNavigationBar(navController) },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        NavHost(navController, startDestination = NavigationItem.Home.route, modifier = Modifier.padding(padding)) {
+        NavHost(
+            navController, 
+            startDestination = NavigationItem.Home.route, 
+            modifier = Modifier.padding(bottom = padding.calculateBottomPadding())
+        ) {
             composable(NavigationItem.Home.route) {
                 DashboardScreen(navController, viewModel, onAddTransactionClicked)
             }
             composable(NavigationItem.Analytics.route) {
-                AnalyticsScreen()
+                AnalyticsScreen(viewModel) // Passing viewModel here
             }
             composable(NavigationItem.Profile.route) {
                 ProfileScreen()
@@ -188,7 +194,7 @@ fun DashboardScreen(navController: NavHostController, viewModel: ExpenseViewMode
 fun BalanceSummaryCard(transactions: List<ExpenseEntity>) {
     val totalIncome = transactions.filter { it.transactionType == "Income" }.sumOf { it.amount }
     val totalExpense = transactions.filter { it.transactionType == "Expense" }.sumOf { it.amount }
-    val totalBalance = totalIncome + totalExpense // Since expenses are stored as negative
+    val totalBalance = totalIncome + totalExpense
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -216,7 +222,8 @@ fun BalanceSummaryCard(transactions: List<ExpenseEntity>) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Expense", fontSize = 14.sp, color = Color.Gray)
-                    Text(text = "₹%.2f".format(totalExpense), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD50000))
+                    val displayExpense = if (totalExpense < 0) totalExpense else -totalExpense
+                    Text(text = "₹%.2f".format(displayExpense), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD50000))
                 }
             }
         }
