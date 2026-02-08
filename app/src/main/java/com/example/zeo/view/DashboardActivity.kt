@@ -27,9 +27,9 @@ class DashboardActivity : ComponentActivity() {
             if (showAddTransactionScreen) {
                 AddTransactionScreen(
                     viewModel = expenseViewModel,
-                    onTransactionAdded = { showAddTransactionScreen = false })
+                    onBack = { showAddTransactionScreen = false })
             } else {
-                Dashboard(
+                MainScreen(
                     viewModel = expenseViewModel,
                     onAddTransactionClicked = { showAddTransactionScreen = true })
             }

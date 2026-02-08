@@ -77,7 +77,7 @@ class Login : ComponentActivity() {
         val shouldRemember = sharedPreferences.getBoolean("remember_me", false)
 
         if (shouldRemember) {
-            val intent = Intent(this, Dashboard::class.java)
+            val intent = Intent(this, DashboardActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
@@ -318,7 +318,7 @@ fun LoginBody(){
                                         }
                                         apply()
                                     }
-                                    val intent = Intent(context, Dashboard::class.java)
+                                    val intent = Intent(context, DashboardActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     context.startActivity(intent)
 

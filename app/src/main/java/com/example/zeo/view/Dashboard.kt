@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.zeo.model.Transaction
+import com.example.zeo.local.ExpenseEntity
+import com.example.zeo.viewmodel.ExpenseViewModel
 
 val bluish = Color(0xFF3F94F8)
 val screenBackground = Color(0xFFF4F6F8)
@@ -62,20 +64,21 @@ class Dashboard : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MainScreen()
+            // This is just a fallback, DashboardActivity should be the main entry point
+            Text("Please launch via DashboardActivity")
         }
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: ExpenseViewModel, onAddTransactionClicked: () -> Unit) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
-    ) {
-        NavHost(navController, startDestination = NavigationItem.Home.route, modifier = Modifier.padding(it)) {
+    ) { padding ->
+        NavHost(navController, startDestination = NavigationItem.Home.route, modifier = Modifier.padding(padding)) {
             composable(NavigationItem.Home.route) {
-                DashboardScreen(navController)
+                DashboardScreen(navController, viewModel, onAddTransactionClicked)
             }
             composable(NavigationItem.Analytics.route) {
                 AnalyticsScreen()
@@ -131,13 +134,8 @@ sealed class NavigationItem(var route: String, var icon: ImageVector) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavHostController) {
-    val transactions = listOf(
-        Transaction("Salary", 40000.0, "Income", "Salary", "1 June 2024", "Monthly Salary", System.currentTimeMillis(), id = "1"),
-        Transaction("Netflix", 999.0, "Expense", "Entertainment", "2 June 2024", "Subscription", System.currentTimeMillis(), id = "2"),
-        Transaction("Freelance", 5000.0, "Income", "Freelance", "3 June 2024", "Project X", System.currentTimeMillis(), id = "3"),
-        Transaction("Dinner", 1500.0, "Expense", "Food", "3 June 2024", "With friends", System.currentTimeMillis(), id = "4")
-    )
+fun DashboardScreen(navController: NavHostController, viewModel: ExpenseViewModel, onAddTransactionClicked: () -> Unit) {
+    val transactions by viewModel.expenses.collectAsState()
 
     Scaffold(
         containerColor = screenBackground,
@@ -149,14 +147,12 @@ fun DashboardScreen(navController: NavHostController) {
                         Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = bluish),
-                modifier = Modifier.height(48.dp) // reduced from default ~64dp
-
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bluish)
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Handle FAB click */ },
+                onClick = onAddTransactionClicked,
                 containerColor = bluish,
                 contentColor = Color.White
             ) {
@@ -189,10 +185,10 @@ fun DashboardScreen(navController: NavHostController) {
 }
 
 @Composable
-fun BalanceSummaryCard(transactions: List<Transaction>) {
+fun BalanceSummaryCard(transactions: List<ExpenseEntity>) {
     val totalIncome = transactions.filter { it.transactionType == "Income" }.sumOf { it.amount }
     val totalExpense = transactions.filter { it.transactionType == "Expense" }.sumOf { it.amount }
-    val totalBalance = totalIncome - totalExpense
+    val totalBalance = totalIncome + totalExpense // Since expenses are stored as negative
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -220,7 +216,7 @@ fun BalanceSummaryCard(transactions: List<Transaction>) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Expense", fontSize = 14.sp, color = Color.Gray)
-                    Text(text = "-₹%.2f".format(totalExpense), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD50000))
+                    Text(text = "₹%.2f".format(totalExpense), fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFD50000))
                 }
             }
         }
@@ -228,7 +224,7 @@ fun BalanceSummaryCard(transactions: List<Transaction>) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: ExpenseEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -248,19 +244,14 @@ fun TransactionItem(transaction: Transaction) {
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = "${if (transaction.transactionType == "Income") "+" else "-"}₹%.2f".format(transaction.amount),
+                    text = "₹%.2f".format(transaction.amount),
                     color = if (transaction.transactionType == "Income") Color(0xFF00C853) else Color(0xFFD50000),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
-                Text(text = transaction.date, fontSize = 12.sp, color = Color.Gray)
+                val dateStr = android.text.format.DateFormat.format("dd MMM yyyy", transaction.date).toString()
+                Text(text = dateStr, fontSize = 12.sp, color = Color.Gray)
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DashboardScreenPreview() {
-    MainScreen()
 }
