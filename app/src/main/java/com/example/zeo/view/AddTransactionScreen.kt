@@ -1,6 +1,7 @@
 package com.example.zeo.view
 
 import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -51,12 +51,20 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var transactionType by remember { mutableStateOf("Expense") }
-    var category by remember { mutableStateOf("Food") }
+    
+    val expenseCategories = listOf("Food", "Rent", "Travel", "Entertainment", "Shopping", "Health", "Other")
+    val incomeCategories = listOf("Salary", "Business", "Freelance", "Investment", "Gift", "Other")
+    
+    var category by remember { mutableStateOf(expenseCategories[0]) }
     var note by remember { mutableStateOf("") }
     
     val context = LocalContext.current
-    val categories = listOf("Food", "Rent", "Travel", "Salary", "Entertainment", "Shopping", "Health", "Other")
     var categoryExpanded by remember { mutableStateOf(false) }
+
+    // Colors for distinction
+    val incomeColor = Color(0xFF00C853) // Green
+    val expenseColor = Color(0xFFD50000) // Red
+    val themeColor by animateColorAsState(if (transactionType == "Income") incomeColor else expenseColor, label = "color")
 
     Scaffold(
         topBar = {
@@ -67,7 +75,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = bluish)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = themeColor)
             )
         },
         containerColor = screenBackground
@@ -90,10 +98,14 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                 listOf("Expense", "Income").forEach { type ->
                     val isSelected = transactionType == type
                     Button(
-                        onClick = { transactionType = type },
+                        onClick = { 
+                            transactionType = type
+                            // Reset category to the first one of the new type
+                            category = if (type == "Income") incomeCategories[0] else expenseCategories[0]
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) bluish else Color.Transparent,
+                            containerColor = if (isSelected) themeColor else Color.Transparent,
                             contentColor = if (isSelected) Color.White else Color.Gray
                         ),
                         shape = RoundedCornerShape(10.dp),
@@ -111,7 +123,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("What for?") },
-                placeholder = { Text("e.g. Grocery shopping") },
+                placeholder = { Text("e.g. Monthly Rent or Salary") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -132,6 +144,8 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Category Selector
+            val currentCategories = if (transactionType == "Income") incomeCategories else expenseCategories
+            
             ExposedDropdownMenuBox(
                 expanded = categoryExpanded,
                 onExpandedChange = { categoryExpanded = !categoryExpanded },
@@ -150,7 +164,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                     expanded = categoryExpanded,
                     onDismissRequest = { categoryExpanded = false }
                 ) {
-                    categories.forEach { cat ->
+                    currentCategories.forEach { cat ->
                         DropdownMenuItem(
                             text = { Text(cat) },
                             onClick = {
@@ -184,7 +198,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                         Toast.makeText(context, "Please enter valid title and amount", Toast.LENGTH_SHORT).show()
                     } else {
                         val newExpense = ExpenseEntity(
-                            userId = "default_user", // TODO: Use actual user ID
+                            userId = "default_user", 
                             title = title,
                             amount = if (transactionType == "Expense") -amountDouble else amountDouble,
                             transactionType = transactionType,
@@ -200,7 +214,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = bluish)
+                colors = ButtonDefaults.buttonColors(containerColor = themeColor)
             ) {
                 Text("Save Transaction", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
