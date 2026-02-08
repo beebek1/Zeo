@@ -1,7 +1,6 @@
 package com.example.zeo.view
 
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -61,10 +60,8 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     var categoryExpanded by remember { mutableStateOf(false) }
 
-    // Colors for distinction
-    val incomeColor = Color(0xFF00C853) // Green
-    val expenseColor = Color(0xFFD50000) // Red
-    val themeColor by animateColorAsState(if (transactionType == "Income") incomeColor else expenseColor, label = "color")
+    // Reverting to the previous bluish theme
+    val bluishTheme = bluish
 
     Scaffold(
         topBar = {
@@ -75,7 +72,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = themeColor)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = bluishTheme)
             )
         },
         containerColor = screenBackground
@@ -105,7 +102,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) themeColor else Color.Transparent,
+                            containerColor = if (isSelected) bluishTheme else Color.Transparent,
                             contentColor = if (isSelected) Color.White else Color.Gray
                         ),
                         shape = RoundedCornerShape(10.dp),
@@ -214,7 +211,7 @@ fun AddTransactionScreen(viewModel: ExpenseViewModel, onBack: () -> Unit) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = themeColor)
+                colors = ButtonDefaults.buttonColors(containerColor = bluishTheme)
             ) {
                 Text("Save Transaction", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
