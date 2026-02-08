@@ -14,6 +14,11 @@ class ExpenseViewModel(private val repository: ExpenseRepository) : ViewModel() 
     private val _expenses = MutableStateFlow<List<ExpenseEntity>>(emptyList())
     val expenses: StateFlow<List<ExpenseEntity>> = _expenses.asStateFlow()
 
+    init {
+        // Automatically start fetching expenses for the default user on initialization
+        getExpenses("default_user")
+    }
+
     fun getExpenses(userId: String) {
         viewModelScope.launch {
             repository.getExpenses(userId).collect {
