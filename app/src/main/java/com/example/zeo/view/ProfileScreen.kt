@@ -2,6 +2,7 @@ package com.example.zeo.view
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -92,7 +93,8 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                 ProfileMenuItem(
                     icon = Icons.Default.Edit,
                     title = "Edit Profile",
-                    subtitle = "Change your name or email"
+                    subtitle = "Change your name or email",
+                    onClick = { Toast.makeText(context, "Edit Profile clicked", Toast.LENGTH_SHORT).show() }
                 )
             }
 
@@ -100,7 +102,8 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                 ProfileMenuItem(
                     icon = Icons.Default.Notifications,
                     title = "Notifications",
-                    subtitle = "Manage your alert settings"
+                    subtitle = "Manage your alert settings",
+                    onClick = { Toast.makeText(context, "Notifications clicked", Toast.LENGTH_SHORT).show() }
                 )
             }
 
@@ -112,17 +115,10 @@ fun ProfileScreen(userViewModel: UserViewModel) {
 
             item {
                 ProfileMenuItem(
-                    icon = Icons.Default.Security,
-                    title = "Security",
-                    subtitle = "Change password or pin"
-                )
-            }
-
-            item {
-                ProfileMenuItem(
                     icon = Icons.Default.Help,
                     title = "Help & Support",
-                    subtitle = "Contact us or view FAQs"
+                    subtitle = "Contact us or view FAQs",
+                    onClick = { Toast.makeText(context, "Help & Support clicked", Toast.LENGTH_SHORT).show() }
                 )
             }
 
@@ -174,13 +170,25 @@ fun ProfileSectionTitle(title: String) {
     )
 }
 
+
+//skjfhkfk
+//skjfhkfk
+//skjfhkfk//skjfhkfk
+//skjfhkfk
+//skjfhkfk
+//skjfhkfk
+//skjfhkfk
+//skjfhkfk//skjfhkfkv
+
+
+
 @Composable
-fun ProfileMenuItem(icon: ImageVector, title: String, subtitle: String) {
+fun ProfileMenuItem(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { /* Handle click */ },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(0.dp)
