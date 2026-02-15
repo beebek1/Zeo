@@ -206,7 +206,7 @@ fun LoginBody(){
                     colors = TextFieldDefaults.colors(
                         unfocusedContainerColor = Lightgray,
                         focusedContainerColor = Lightgray,
-                        focusedIndicatorColor = Green,
+                        focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     modifier = Modifier
@@ -246,7 +246,7 @@ fun LoginBody(){
                     colors = TextFieldDefaults.colors(
                         unfocusedContainerColor = Lightgray,
                         focusedContainerColor = Lightgray,
-                        focusedIndicatorColor = Green,
+                        focusedIndicatorColor = Color.White,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
 
