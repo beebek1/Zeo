@@ -3,6 +3,7 @@ package com.example.zeo
 import com.example.zeo.model.UserModel
 import com.example.zeo.local.ExpenseEntity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class ZeoUnitTest {
@@ -66,5 +67,70 @@ class ZeoUnitTest {
             userId = "user_1"
         )
         assertEquals(timestamp, expense.date)
+    }
+
+    @Test
+    fun `user model update values works correctly`() {
+        val user = UserModel("1", "old@mail.com", "Old Name")
+        user.fullName = "New Name"
+        user.email = "new@mail.com"
+        
+        assertEquals("New Name", user.fullName)
+        assertEquals("new@mail.com", user.email)
+    }
+
+    @Test
+    fun `expense entity handles zero amount correctly`() {
+        val expense = ExpenseEntity(
+            title = "Free Item",
+            amount = 0.0,
+            transactionType = "Expense",
+            tag = "Misc",
+            date = 0L,
+            note = "Testing zero",
+            userId = "u1"
+        )
+        assertEquals(0.0, expense.amount, 0.0)
+    }
+
+    @Test
+    fun `user model copy creates a modified duplicate`() {
+        val user1 = UserModel("id1", "user@test.com", "User One")
+        val user2 = user1.copy(fullName = "User Two")
+        
+        assertEquals("id1", user2.userId)
+        assertEquals("user@test.com", user2.email)
+        assertEquals("User Two", user2.fullName)
+        assertNotEquals(user1.fullName, user2.fullName)
+    }
+
+    @Test
+    fun `expense entity handles empty title and note`() {
+        val expense = ExpenseEntity(
+            title = "",
+            amount = 100.0,
+            transactionType = "Income",
+            tag = "None",
+            date = 1L,
+            note = "",
+            userId = "u1"
+        )
+        assertEquals("", expense.title)
+        assertEquals("", expense.note)
+    }
+
+    @Test
+    fun `expense entity handles large amounts`() {
+        val largeAmount = 1_000_000_000.99
+        val expense = ExpenseEntity(
+            title = "Business Deal",
+            amount = largeAmount,
+            transactionType = "Income",
+            tag = "Business",
+            date = 555L,
+            note = "Big deal",
+            userId = "ceo_1"
+        )
+        assertEquals(largeAmount, expense.amount, 0.0)
     }
 }
