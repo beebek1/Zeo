@@ -21,4 +21,8 @@ class ExpenseRepository(private val expenseDao: ExpenseDao) {
     suspend fun deleteExpense(expense: ExpenseEntity) {
         expenseDao.delete(expense)
     }
+
+    suspend fun deleteAllExpensesForUser(userId: String) {
+        expenseDao.deleteAllExpensesForUser(userId)
+    }
 }
