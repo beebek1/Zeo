@@ -13,7 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,14 +24,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.zeo.viewmodel.ExpenseViewModel
 import com.example.zeo.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(userViewModel: UserViewModel) {
+fun ProfileScreen(userViewModel: UserViewModel, expenseViewModel: ExpenseViewModel) {
     val context = LocalContext.current
     val sharedPreferences = context.getSharedPreferences("user", Context.MODE_PRIVATE)
-    val userEmail = sharedPreferences.getString("email", "User@example.com") ?: "User@example.com"
+    
+    val currentUser = userViewModel.getCurrentUser()
+    val userId = currentUser?.uid ?: ""
+    
+    // Fetch user data when screen opens
+    LaunchedEffect(userId) {
+        if (userId.isNotEmpty()) {
+            userViewModel.getUserById(userId)
+        }
+    }
+    
+    val userModel by userViewModel.users.observeAsState()
+    
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showNotificationDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = screenBackground,
@@ -48,7 +65,7 @@ fun ProfileScreen(userViewModel: UserViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(20.dp)
         ) {
-            // Profile Header
+            // Profile Header with Dynamic Data
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,12 +87,12 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = userEmail.split("@")[0].replaceFirstChar { it.uppercase() },
+                        text = userModel?.fullName ?: "Loading...",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = userEmail,
+                        text = userModel?.email ?: currentUser?.email ?: "No Email",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -84,7 +101,7 @@ fun ProfileScreen(userViewModel: UserViewModel) {
 
             item { Spacer(modifier = Modifier.height(10.dp)) }
 
-            // Settings Sections
+            // Account Settings Section
             item {
                 ProfileSectionTitle("Account Settings")
             }
@@ -93,8 +110,8 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                 ProfileMenuItem(
                     icon = Icons.Default.Edit,
                     title = "Edit Profile",
-                    subtitle = "Change your name or email",
-                    onClick = { Toast.makeText(context, "Edit Profile clicked", Toast.LENGTH_SHORT).show() }
+                    subtitle = "Update your display name",
+                    onClick = { showEditDialog = true }
                 )
             }
 
@@ -102,13 +119,24 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                 ProfileMenuItem(
                     icon = Icons.Default.Notifications,
                     title = "Notifications",
-                    subtitle = "Manage your alert settings",
-                    onClick = { Toast.makeText(context, "Notifications clicked", Toast.LENGTH_SHORT).show() }
+                    subtitle = "Configure app alerts",
+                    onClick = { showNotificationDialog = true }
+                )
+            }
+
+            item {
+                ProfileMenuItem(
+                    icon = Icons.Default.DeleteForever,
+                    title = "Delete Account",
+                    subtitle = "Permanently remove your data",
+                    iconColor = Color(0xFFD50000),
+                    onClick = { showDeleteAccountDialog = true }
                 )
             }
 
             item { Spacer(modifier = Modifier.height(20.dp)) }
 
+            // App Settings Section
             item {
                 ProfileSectionTitle("App Settings")
             }
@@ -118,7 +146,7 @@ fun ProfileScreen(userViewModel: UserViewModel) {
                     icon = Icons.Default.Help,
                     title = "Help & Support",
                     subtitle = "Contact us or view FAQs",
-                    onClick = { Toast.makeText(context, "Help & Support clicked", Toast.LENGTH_SHORT).show() }
+                    onClick = { Toast.makeText(context, "Redirecting to Support...", Toast.LENGTH_SHORT).show() }
                 )
             }
 
@@ -128,16 +156,17 @@ fun ProfileScreen(userViewModel: UserViewModel) {
             item {
                 Button(
                     onClick = {
-                        // Logout logic
-                        with(sharedPreferences.edit()) {
-                            putBoolean("remember_me", false)
-                            remove("email")
-                            remove("password")
-                            apply()
+                        userViewModel.logout(userId) {
+                            with(sharedPreferences.edit()) {
+                                putBoolean("remember_me", false)
+                                remove("email")
+                                remove("password")
+                                apply()
+                            }
+                            val intent = Intent(context, Login::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            context.startActivity(intent)
                         }
-                        val intent = Intent(context, Login::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        context.startActivity(intent)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -155,6 +184,122 @@ fun ProfileScreen(userViewModel: UserViewModel) {
             item { Spacer(modifier = Modifier.height(50.dp)) }
         }
     }
+
+    // Dynamic Edit Profile Dialog
+    if (showEditDialog) {
+        var newName by remember { mutableStateOf(userModel?.fullName ?: "") }
+        AlertDialog(
+            onDismissRequest = { showEditDialog = false },
+            title = { Text("Edit Profile") },
+            text = {
+                Column {
+                    Text("Update your full name", fontSize = 14.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newName,
+                        onValueChange = { newName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = bluish,
+                            unfocusedBorderColor = Color.LightGray
+                        )
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newName.isNotBlank() && userModel != null) {
+                            val updatedUser = userModel!!.copy(fullName = newName)
+                            userViewModel.updateProfile(userId, updatedUser) { success, msg ->
+                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                if (success) {
+                                    userViewModel.getUserById(userId)
+                                    showEditDialog = false
+                                }
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = bluish)
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditDialog = false }) {
+                    Text("Cancel", color = Color.Gray)
+                }
+            }
+        )
+    }
+
+    // Dynamic Notification Dialog
+    if (showNotificationDialog) {
+        var isEnabled by remember { mutableStateOf(true) }
+        AlertDialog(
+            onDismissRequest = { showNotificationDialog = false },
+            title = { Text("Notifications") },
+            text = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Push Notifications")
+                    Switch(
+                        checked = isEnabled,
+                        onCheckedChange = { isEnabled = it },
+                        colors = SwitchDefaults.colors(checkedThumbColor = bluish)
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showNotificationDialog = false }) {
+                    Text("Done", color = bluish)
+                }
+            }
+        )
+    }
+
+    // Delete Account Confirmation Dialog
+    if (showDeleteAccountDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteAccountDialog = false },
+            title = { Text("Delete Account") },
+            text = { Text("Are you sure you want to delete your account? This will permanently remove all your data, including transactions.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        expenseViewModel.deleteAllExpensesForUser(userId)
+                        userViewModel.deleteUser(userId) { success, msg ->
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            if (success) {
+                                with(sharedPreferences.edit()) {
+                                    putBoolean("remember_me", false)
+                                    remove("email")
+                                    remove("password")
+                                    apply()
+                                }
+                                val intent = Intent(context, Login::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                context.startActivity(intent)
+                            }
+                        }
+                        showDeleteAccountDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD50000))
+                ) {
+                    Text("Delete Permanently")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteAccountDialog = false }) {
+                    Text("Cancel", color = Color.Gray)
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -170,20 +315,14 @@ fun ProfileSectionTitle(title: String) {
     )
 }
 
-
-//skjfhkfk
-//skjfhkfk
-//skjfhkfk//skjfhkfk
-//skjfhkfk
-//skjfhkfk
-//skjfhkfk
-//skjfhkfk
-//skjfhkfk//skjfhkfkv
-
-
-
 @Composable
-fun ProfileMenuItem(icon: ImageVector, title: String, subtitle: String, onClick: () -> Unit) {
+fun ProfileMenuItem(
+    icon: ImageVector, 
+    title: String, 
+    subtitle: String, 
+    iconColor: Color = Color.Gray,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -206,7 +345,7 @@ fun ProfileMenuItem(icon: ImageVector, title: String, subtitle: String, onClick:
                     .background(screenBackground),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = Color.Gray)
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = iconColor)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
